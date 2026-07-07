@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Cache
+.cache/
+cache/
+
+# Thumbnails
+thumbnails/
+
+# Temporary
+temp/
+tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
