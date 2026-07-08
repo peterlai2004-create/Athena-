@@ -36,6 +36,8 @@ class ImageCard(QWidget):
 
         self.setFixedSize(180, 220)
 
+        self.selected = False
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
@@ -64,19 +66,33 @@ class ImageCard(QWidget):
         layout.addWidget(self.image_label)
         layout.addWidget(self.text_label)
 
-        self.setStyleSheet("""
-        QWidget{
-            background:#2f2f2f;
-            border:1px solid #555;
-            border-radius:8px;
-        }
+        self.update_style()
 
-        QLabel{
+    def update_style(self):
+
+        if self.selected:
+            border = "#3B82F6"
+        else:
+            border = "#555"
+
+        self.setStyleSheet(f"""
+        QWidget {{
+            background:#2f2f2f;
+            border:2px solid {border};
+            border-radius:8px;
+        }}
+
+        QLabel {{
             color:white;
             border:none;
             background:transparent;
-        }
+        }}
         """)
+
+    def set_selected(self, value):
+
+        self.selected = value
+        self.update_style()
 
     def mousePressEvent(self, event):
 
@@ -92,6 +108,8 @@ class ImageGrid(QScrollArea):
 
     def __init__(self):
         super().__init__()
+
+        self.current_card = None
 
         self.setWidgetResizable(True)
 
@@ -149,10 +167,22 @@ class ImageGrid(QScrollArea):
             )
 
             card.clicked.connect(
-                self.image_selected.emit
+                lambda info, c=card:
+                self.select_card(c, info)
             )
 
             r = i // columns
             c = i % columns
 
             self.grid.addWidget(card, r, c)
+
+    def select_card(self, card, info):
+
+        if self.current_card:
+            self.current_card.set_selected(False)
+
+        self.current_card = card
+
+        self.current_card.set_selected(True)
+
+        self.image_selected.emit(info)

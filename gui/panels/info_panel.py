@@ -1,3 +1,5 @@
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -16,24 +18,37 @@ class InfoPanel(QWidget):
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(8)
 
-        title = QLabel("Information")
+        title = QLabel("Preview")
         layout.addWidget(title)
+
+        self.preview_label = QLabel()
+        self.preview_label.setFixedHeight(250)
+        self.preview_label.setAlignment(Qt.AlignCenter)
+        self.preview_label.setStyleSheet("""
+            QLabel{
+                background:#2f2f2f;
+                border:1px solid #555;
+                border-radius:8px;
+            }
+        """)
+
+        layout.addWidget(self.preview_label)
 
         self.info = QTextEdit()
         self.info.setReadOnly(True)
 
-        self.clear_info()
-
         layout.addWidget(self.info)
 
+        self.clear_info()
+
     def clear_info(self):
+
+        self.preview_label.clear()
 
         self.info.setPlainText(
             "Filename:\n"
             "\n"
             "Path:\n"
-            "\n"
-            "Resolution:\n"
             "\n"
             "Size:\n"
             "\n"
@@ -53,10 +68,20 @@ class InfoPanel(QWidget):
         tags=""
     ):
 
-        resolution = ""
+        pixmap = QPixmap(path)
 
-        if width and height:
-            resolution = f"{width} x {height}"
+        if not pixmap.isNull():
+
+            pixmap = pixmap.scaled(
+                300,
+                250,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+
+            self.preview_label.setPixmap(pixmap)
+        else:
+            self.preview_label.setText("No Preview")
 
         size_text = ""
 
@@ -68,7 +93,6 @@ class InfoPanel(QWidget):
         self.info.setPlainText(
             f"Filename:\n{filename}\n\n"
             f"Path:\n{path}\n\n"
-            f"Resolution:\n{resolution}\n\n"
             f"Size:\n{size_text}\n\n"
             f"Hash:\n{hash_text}\n\n"
             f"Tags:\n{tags}"
