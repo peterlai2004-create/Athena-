@@ -135,6 +135,9 @@ class ImageGrid(QScrollArea):
 
         self.current_card = None
 
+        self.current_images = []
+        self.current_keyword = ""
+
         self.setWidgetResizable(True)
 
         self.container = QWidget()
@@ -164,9 +167,7 @@ class ImageGrid(QScrollArea):
             if widget:
                 widget.deleteLater()
 
-    def load_images(self, keyword=""):
-
-        self.clear_grid()
+    def query_images(self, keyword=""):
 
         conn, cursor = create_database()
 
@@ -198,9 +199,16 @@ class ImageGrid(QScrollArea):
                 LIMIT 500
             """)
 
-        rows = cursor.fetchall()
+        self.current_images = cursor.fetchall()
 
         conn.close()
+
+        self.current_keyword = keyword
+    def render_images(self):
+
+        self.clear_grid()
+
+        rows = self.current_images
 
         if not rows:
 
@@ -242,6 +250,16 @@ class ImageGrid(QScrollArea):
             c = i % columns
 
             self.grid.addWidget(card, r, c)
+
+    def load_images(self, keyword=""):
+
+        self.query_images(keyword)
+
+        self.render_images()
+
+    def refresh_grid(self):
+
+        self.render_images()
 
     def select_card(self, card, info):
 
