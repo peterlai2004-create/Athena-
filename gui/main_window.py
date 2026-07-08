@@ -80,6 +80,14 @@ class MainWindow(QMainWindow):
             self.image_panel.image_grid.set_thumbnail_size
         )
 
+        self.navigation_panel.recent_btn.clicked.connect(
+            self.on_recent_clicked
+        )
+
+        self.navigation_panel.home_btn.clicked.connect(
+            self.on_home_clicked
+        )
+
     def on_image_selected(self, info):
 
         self.recent_manager.add(info)
@@ -120,6 +128,29 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(
                 "Athena Ready"
             )
+
+    def on_recent_clicked(self):
+
+        images = (
+            self.recent_manager
+            .get_recent_images()
+        )
+
+        self.image_panel.image_grid.load_recent_images(
+            images
+        )
+
+        self.statusBar().showMessage(
+            f"Showing {len(images)} recent images"
+        )
+
+    def on_home_clicked(self):
+
+        self.image_panel.image_grid.load_images()
+
+        self.statusBar().showMessage(
+            "Home"
+        )
 
     def _setup_statusbar(self):
 
