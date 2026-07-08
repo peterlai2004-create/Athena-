@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QWidget,
@@ -14,13 +14,29 @@ from database import create_database
 
 class ImageCard(QWidget):
 
-    def __init__(self, image_path, filename):
+    clicked = Signal(dict)
+
+    def __init__(
+        self,
+        image_id,
+        image_path,
+        filename,
+        size,
+        image_hash,
+    ):
         super().__init__()
+
+        self.image_info = {
+            "id": image_id,
+            "path": image_path,
+            "filename": filename,
+            "size": size,
+            "hash": image_hash,
+        }
 
         self.setFixedSize(180, 220)
 
         layout = QVBoxLayout(self)
-
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
 
@@ -35,7 +51,7 @@ class ImageCard(QWidget):
                 170,
                 170,
                 Qt.KeepAspectRatio,
-                Qt.SmoothTransformation
+                Qt.SmoothTransformation,
             )
             self.image_label.setPixmap(pixmap)
         else:
@@ -62,8 +78,17 @@ class ImageCard(QWidget):
         }
         """)
 
+    def mousePressEvent(self, event):
+
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit(self.image_info)
+
+        super().mousePressEvent(event)
+
 
 class ImageGrid(QScrollArea):
+
+    image_selected = Signal(dict)
 
     def __init__(self):
         super().__init__()
@@ -91,7 +116,12 @@ class ImageGrid(QScrollArea):
         conn, cursor = create_database()
 
         cursor.execute("""
-            SELECT  path, filename
+            SELECT
+                id,
+                path,
+                filename,
+                size,
+                hash
             FROM images
             LIMIT 120
         """)
@@ -104,12 +134,22 @@ class ImageGrid(QScrollArea):
 
         for i, row in enumerate(rows):
 
-            image_path = row[0]
-            filename = row[1]
+            image_id = row[0]
+            image_path = row[1]
+            filename = row[2]
+            size = row[3]
+            image_hash = row[4]
 
             card = ImageCard(
+                image_id,
                 image_path,
-                filename
+                filename,
+                size,
+                image_hash,
+            )
+
+            card.clicked.connect(
+                self.image_selected.emit
             )
 
             r = i // columns

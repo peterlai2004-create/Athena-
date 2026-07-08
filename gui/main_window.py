@@ -22,26 +22,21 @@ class MainWindow(QMainWindow):
         self.resize(1600, 900)
 
         self._setup_ui()
+        self._setup_connections()
         self._setup_statusbar()
 
     def _setup_ui(self):
-        """
-        建立主介面
-        """
 
         central = QWidget()
         self.setCentralWidget(central)
 
         self.root_layout = QVBoxLayout(central)
-
         self.root_layout.setContentsMargins(8, 8, 8, 8)
         self.root_layout.setSpacing(8)
 
-        # Search Bar
         self.search_bar = SearchBar()
         self.root_layout.addWidget(self.search_bar)
 
-        # Main Splitter
         self.splitter = QSplitter(Qt.Horizontal)
 
         self.navigation_panel = NavigationPanel()
@@ -59,13 +54,26 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([
             250,
             1000,
-            350
+            350,
         ])
 
         self.root_layout.addWidget(self.splitter, 1)
 
+    def _setup_connections(self):
+
+        self.image_panel.image_grid.image_selected.connect(
+            self.on_image_selected
+        )
+
+    def on_image_selected(self, info):
+
+        self.info_panel.set_image_info(
+            filename=info["filename"],
+            path=info["path"],
+            size=info["size"],
+            image_hash=info["hash"],
+        )
+
     def _setup_statusbar(self):
-        """
-        狀態列
-        """
+
         self.statusBar().showMessage("Athena Ready")
