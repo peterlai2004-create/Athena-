@@ -10,6 +10,9 @@ class ImagePanel(QWidget):
 
         layout = QVBoxLayout(self)
 
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
         self.image_grid = ImageGrid()
 
         layout.addWidget(self.image_grid)

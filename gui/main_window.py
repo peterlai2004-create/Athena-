@@ -16,47 +16,56 @@ from gui.widgets.search_bar import SearchBar
 class MainWindow(QMainWindow):
 
     def __init__(self):
-
         super().__init__()
 
         self.setWindowTitle("Athena")
-
         self.resize(1600, 900)
 
-        central = QWidget()
+        self._setup_ui()
+        self._setup_statusbar()
 
+    def _setup_ui(self):
+        """
+        建立主介面
+        """
+
+        central = QWidget()
         self.setCentralWidget(central)
 
-        root = QVBoxLayout(central)
+        self.root_layout = QVBoxLayout(central)
+
+        self.root_layout.setContentsMargins(8, 8, 8, 8)
+        self.root_layout.setSpacing(8)
 
         # Search Bar
-
         self.search_bar = SearchBar()
+        self.root_layout.addWidget(self.search_bar)
 
-        root.addWidget(self.search_bar)
-        
         # Main Splitter
-
-        splitter = QSplitter(Qt.Horizontal)
+        self.splitter = QSplitter(Qt.Horizontal)
 
         self.navigation_panel = NavigationPanel()
-
         self.image_panel = ImagePanel()
-
         self.info_panel = InfoPanel()
 
-        splitter.addWidget(self.navigation_panel)
+        self.splitter.addWidget(self.navigation_panel)
+        self.splitter.addWidget(self.image_panel)
+        self.splitter.addWidget(self.info_panel)
 
-        splitter.addWidget(self.image_panel)
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 5)
+        self.splitter.setStretchFactor(2, 2)
 
-        splitter.addWidget(self.info_panel)
+        self.splitter.setSizes([
+            250,
+            1000,
+            350
+        ])
 
-        splitter.setStretchFactor(0, 1)
+        self.root_layout.addWidget(self.splitter, 1)
 
-        splitter.setStretchFactor(1, 5)
-
-        splitter.setStretchFactor(2, 2)
-
-        root.addWidget(splitter)
-
+    def _setup_statusbar(self):
+        """
+        狀態列
+        """
         self.statusBar().showMessage("Athena Ready")

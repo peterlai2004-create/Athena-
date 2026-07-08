@@ -13,10 +13,12 @@ class InfoPanel(QWidget):
 
         layout = QVBoxLayout(self)
 
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(8)
+
         layout.addWidget(QLabel("Information"))
 
         self.info = QTextEdit()
-
         self.info.setReadOnly(True)
 
         self.info.setPlainText(

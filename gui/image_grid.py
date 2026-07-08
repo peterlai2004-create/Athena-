@@ -1,32 +1,64 @@
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QWidget,
     QScrollArea,
     QGridLayout,
     QLabel,
+    QVBoxLayout,
+    QSizePolicy,
 )
 
 from database import create_database
 
 
-class ImageCard(QLabel):
+class ImageCard(QWidget):
 
-    def __init__(self, text):
+    def __init__(self, image_path, filename):
+        super().__init__()
 
-        super().__init__(text)
+        self.setFixedSize(180, 220)
 
-        self.setFixedSize(180, 180)
+        layout = QVBoxLayout(self)
 
-        self.setAlignment(Qt.AlignCenter)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(5)
 
-        self.setWordWrap(True)
+        self.image_label = QLabel()
+        self.image_label.setFixedSize(170, 170)
+        self.image_label.setAlignment(Qt.AlignCenter)
+
+        pixmap = QPixmap(image_path)
+
+        if not pixmap.isNull():
+            pixmap = pixmap.scaled(
+                170,
+                170,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+            self.image_label.setPixmap(pixmap)
+        else:
+            self.image_label.setText("No Preview")
+
+        self.text_label = QLabel(filename)
+        self.text_label.setWordWrap(True)
+        self.text_label.setAlignment(Qt.AlignCenter)
+
+        layout.addWidget(self.image_label)
+        layout.addWidget(self.text_label)
 
         self.setStyleSheet("""
+        QWidget{
+            background:#2f2f2f;
+            border:1px solid #555;
+            border-radius:8px;
+        }
+
         QLabel{
-            background:#3a3a3a;
-            border:1px solid #666666;
             color:white;
-            padding:8px;
+            border:none;
+            background:transparent;
         }
         """)
 
@@ -34,16 +66,21 @@ class ImageCard(QLabel):
 class ImageGrid(QScrollArea):
 
     def __init__(self):
-
         super().__init__()
 
         self.setWidgetResizable(True)
 
         self.container = QWidget()
 
-        self.grid = QGridLayout(self.container)
+        self.container.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Maximum
+        )
 
+        self.grid = QGridLayout(self.container)
         self.grid.setSpacing(10)
+        self.grid.setContentsMargins(10, 10, 10, 10)
+        self.grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
         self.setWidget(self.container)
 
@@ -54,7 +91,7 @@ class ImageGrid(QScrollArea):
         conn, cursor = create_database()
 
         cursor.execute("""
-            SELECT filename
+            SELECT  path, filename
             FROM images
             LIMIT 120
         """)
@@ -67,9 +104,13 @@ class ImageGrid(QScrollArea):
 
         for i, row in enumerate(rows):
 
-            filename = row[0]
+            image_path = row[0]
+            filename = row[1]
 
-            card = ImageCard(filename)
+            card = ImageCard(
+                image_path,
+                filename
+            )
 
             r = i // columns
             c = i % columns
