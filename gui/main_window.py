@@ -84,6 +84,14 @@ class MainWindow(QMainWindow):
 
         self.recent_manager.add(info)
 
+        recent_count = len(
+            self.recent_manager.get_recent_images()
+        )
+
+        self.navigation_panel.set_recent_count(
+            recent_count
+        )
+
         self.info_panel.set_image_info(
             filename=info["filename"],
             path=info["path"],
@@ -91,12 +99,8 @@ class MainWindow(QMainWindow):
             image_hash=info["hash"],
         )
 
-        count = len(
-            self.recent_manager.get_recent_images()
-        )
-
         self.statusBar().showMessage(
-            f"Recent Images: {count}"
+            f"Recent Images: {recent_count}"
         )
 
     def on_search_requested(self, text):

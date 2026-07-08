@@ -33,6 +33,7 @@ class NavigationPanel(QWidget):
         self.home_btn = SidebarButton("🏠 Home")
         self.search_btn = SidebarButton("🔍 Search")
         self.library_btn = SidebarButton("🖼 Library")
+        self.recent_btn = SidebarButton("🕒 Recent")
         self.collection_btn = SidebarButton("📁 Collections")
         self.duplicate_btn = SidebarButton("🔄 Duplicate")
         self.ai_btn = SidebarButton("🤖 AI Search")
@@ -44,6 +45,7 @@ class NavigationPanel(QWidget):
             self.home_btn,
             self.search_btn,
             self.library_btn,
+            self.recent_btn,
             self.collection_btn,
             self.duplicate_btn,
             self.ai_btn,
@@ -53,7 +55,8 @@ class NavigationPanel(QWidget):
         for button in self.buttons:
 
             button.clicked.connect(
-                lambda _, b=button: self.select_button(b)
+                lambda _, b=button:
+                self.select_button(b)
             )
 
             layout.addWidget(button)
@@ -66,3 +69,9 @@ class NavigationPanel(QWidget):
             b.setChecked(False)
 
         button.setChecked(True)
+
+    def set_recent_count(self, count):
+
+        self.recent_btn.setText(
+            f"🕒 Recent ({count})"
+        )
