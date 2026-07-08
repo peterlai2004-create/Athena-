@@ -7,6 +7,8 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 
+from PIL import Image
+
 
 class InfoPanel(QWidget):
 
@@ -24,6 +26,7 @@ class InfoPanel(QWidget):
         self.preview_label = QLabel()
         self.preview_label.setFixedHeight(250)
         self.preview_label.setAlignment(Qt.AlignCenter)
+
         self.preview_label.setStyleSheet("""
             QLabel{
                 background:#2f2f2f;
@@ -50,11 +53,11 @@ class InfoPanel(QWidget):
             "\n"
             "Path:\n"
             "\n"
+            "Resolution:\n"
+            "\n"
             "Size:\n"
             "\n"
             "Hash:\n"
-            "\n"
-            "Tags:\n"
         )
 
     def set_image_info(
@@ -80,8 +83,13 @@ class InfoPanel(QWidget):
             )
 
             self.preview_label.setPixmap(pixmap)
-        else:
-            self.preview_label.setText("No Preview")
+
+        try:
+            img = Image.open(path)
+            width, height = img.size
+            resolution = f"{width} x {height}"
+        except:
+            resolution = ""
 
         size_text = ""
 
@@ -93,7 +101,7 @@ class InfoPanel(QWidget):
         self.info.setPlainText(
             f"Filename:\n{filename}\n\n"
             f"Path:\n{path}\n\n"
+            f"Resolution:\n{resolution}\n\n"
             f"Size:\n{size_text}\n\n"
-            f"Hash:\n{hash_text}\n\n"
-            f"Tags:\n{tags}"
+            f"Hash:\n{hash_text}"
         )

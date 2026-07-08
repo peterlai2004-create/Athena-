@@ -1,5 +1,6 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QDesktopServices
+from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import (
     QWidget,
     QScrollArea,
@@ -15,6 +16,7 @@ from database import create_database
 class ImageCard(QWidget):
 
     clicked = Signal(dict)
+    double_clicked = Signal(dict)
 
     def __init__(
         self,
@@ -34,9 +36,10 @@ class ImageCard(QWidget):
             "hash": image_hash,
         }
 
-        self.setFixedSize(180, 220)
-
         self.selected = False
+        self.hover = False
+
+        self.setFixedSize(180, 220)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(5, 5, 5, 5)
@@ -66,18 +69,24 @@ class ImageCard(QWidget):
         layout.addWidget(self.image_label)
         layout.addWidget(self.text_label)
 
+        self.setMouseTracking(True)
+
         self.update_style()
 
     def update_style(self):
 
+        border = "#555"
+        background = "#2f2f2f"
+
+        if self.hover:
+            background = "#383838"
+
         if self.selected:
             border = "#3B82F6"
-        else:
-            border = "#555"
 
         self.setStyleSheet(f"""
         QWidget {{
-            background:#2f2f2f;
+            background:{background};
             border:2px solid {border};
             border-radius:8px;
         }}
@@ -90,9 +99,18 @@ class ImageCard(QWidget):
         """)
 
     def set_selected(self, value):
-
         self.selected = value
         self.update_style()
+
+    def enterEvent(self, event):
+        self.hover = True
+        self.update_style()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.hover = False
+        self.update_style()
+        super().leaveEvent(event)
 
     def mousePressEvent(self, event):
 
@@ -100,6 +118,13 @@ class ImageCard(QWidget):
             self.clicked.emit(self.image_info)
 
         super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+
+        if event.button() == Qt.LeftButton:
+            self.double_clicked.emit(self.image_info)
+
+        super().mouseDoubleClickEvent(event)
 
 
 class ImageGrid(QScrollArea):
@@ -171,6 +196,10 @@ class ImageGrid(QScrollArea):
                 self.select_card(c, info)
             )
 
+            card.double_clicked.connect(
+                self.open_image
+            )
+
             r = i // columns
             c = i % columns
 
@@ -182,7 +211,14 @@ class ImageGrid(QScrollArea):
             self.current_card.set_selected(False)
 
         self.current_card = card
-
         self.current_card.set_selected(True)
 
         self.image_selected.emit(info)
+
+    def open_image(self, info):
+
+        path = info["path"]
+
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile(path)
+        )
