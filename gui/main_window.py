@@ -71,6 +71,10 @@ class MainWindow(QMainWindow):
             self.on_search_requested
         )
 
+        self.search_bar.thumbnail_size_changed.connect(
+        self.image_panel.image_grid.set_thumbnail_size
+        )
+        
     def on_image_selected(self, info):
 
         self.info_panel.set_image_info(

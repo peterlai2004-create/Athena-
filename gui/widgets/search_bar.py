@@ -18,17 +18,27 @@ class SearchBar(QWidget):
         super().__init__()
 
         layout = QHBoxLayout(self)
+
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
         self.search_edit = QLineEdit()
-        self.search_edit.setPlaceholderText("🔍 搜尋圖片...")
+        self.search_edit.setPlaceholderText(
+            "🔍 搜尋圖片..."
+        )
 
-        self.search_button = QPushButton("Search")
+        self.search_button = QPushButton(
+            "Search"
+        )
 
-        self.size_label = QLabel("Size")
+        self.size_text = QLabel(
+            "Size"
+        )
 
-        self.size_slider = QSlider(Qt.Horizontal)
+        self.size_slider = QSlider(
+            Qt.Horizontal
+        )
+
         self.size_slider.setMinimum(120)
         self.size_slider.setMaximum(300)
         self.size_slider.setValue(180)
@@ -36,7 +46,7 @@ class SearchBar(QWidget):
 
         layout.addWidget(self.search_edit)
         layout.addWidget(self.search_button)
-        layout.addWidget(self.size_label)
+        layout.addWidget(self.size_text)
         layout.addWidget(self.size_slider)
 
         self.search_button.clicked.connect(
@@ -47,8 +57,11 @@ class SearchBar(QWidget):
             self.emit_search
         )
 
-        self.size_slider.valueChanged.connect(
-            self.thumbnail_size_changed.emit
+        self.size_slider.sliderReleased.connect(
+            lambda:
+            self.thumbnail_size_changed.emit(
+                self.size_slider.value()
+            )
         )
 
     def emit_search(self):

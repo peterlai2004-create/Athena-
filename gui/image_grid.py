@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QSizePolicy,
 )
+from numpy import size
 
 from database import create_database
 
@@ -137,6 +138,7 @@ class ImageGrid(QScrollArea):
 
         self.current_images = []
         self.current_keyword = ""
+        self.thumbnail_size = 180
 
         self.setWidgetResizable(True)
 
@@ -237,6 +239,16 @@ class ImageGrid(QScrollArea):
                 image_hash,
             )
 
+            card.setFixedSize(
+                self.thumbnail_size,
+                self.thumbnail_size + 40
+            )
+
+            card.image_label.setFixedSize(
+                self.thumbnail_size - 10,
+                self.thumbnail_size - 10
+        )
+
             card.clicked.connect(
                 lambda info, c=card:
                 self.select_card(c, info)
@@ -258,6 +270,15 @@ class ImageGrid(QScrollArea):
         self.render_images()
 
     def refresh_grid(self):
+
+        self.render_images()
+
+    def set_thumbnail_size(
+        self,
+        size,
+    ):
+
+        self.thumbnail_size = size
 
         self.render_images()
 
