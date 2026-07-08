@@ -12,11 +12,15 @@ from gui.panels.image_panel import ImagePanel
 from gui.panels.info_panel import InfoPanel
 from gui.widgets.search_bar import SearchBar
 
+from recent_manager import RecentManager
+
 
 class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+        self.recent_manager = RecentManager()
 
         self.setWindowTitle("Athena")
         self.resize(1600, 900)
@@ -57,25 +61,28 @@ class MainWindow(QMainWindow):
             350,
         ])
 
-        self.root_layout.addWidget(self.splitter, 1)
+        self.root_layout.addWidget(
+            self.splitter,
+            1
+        )
 
     def _setup_connections(self):
 
-        # 點擊圖片
         self.image_panel.image_grid.image_selected.connect(
             self.on_image_selected
         )
 
-        # 搜尋
         self.search_bar.search_requested.connect(
             self.on_search_requested
         )
 
         self.search_bar.thumbnail_size_changed.connect(
-        self.image_panel.image_grid.set_thumbnail_size
+            self.image_panel.image_grid.set_thumbnail_size
         )
-        
+
     def on_image_selected(self, info):
+
+        self.recent_manager.add(info)
 
         self.info_panel.set_image_info(
             filename=info["filename"],
@@ -84,19 +91,34 @@ class MainWindow(QMainWindow):
             image_hash=info["hash"],
         )
 
+        count = len(
+            self.recent_manager.get_recent_images()
+        )
+
+        self.statusBar().showMessage(
+            f"Recent Images: {count}"
+        )
+
     def on_search_requested(self, text):
 
-        self.image_panel.image_grid.load_images(text)
+        self.image_panel.image_grid.load_images(
+            text
+        )
 
         if text:
+
             self.statusBar().showMessage(
                 f'Search: "{text}"'
             )
+
         else:
+
             self.statusBar().showMessage(
                 "Athena Ready"
             )
 
     def _setup_statusbar(self):
 
-        self.statusBar().showMessage("Athena Ready")
+        self.statusBar().showMessage(
+            "Athena Ready"
+        )
