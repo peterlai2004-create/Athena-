@@ -61,8 +61,14 @@ class MainWindow(QMainWindow):
 
     def _setup_connections(self):
 
+        # 點擊圖片
         self.image_panel.image_grid.image_selected.connect(
             self.on_image_selected
+        )
+
+        # 搜尋
+        self.search_bar.search_requested.connect(
+            self.on_search_requested
         )
 
     def on_image_selected(self, info):
@@ -73,6 +79,19 @@ class MainWindow(QMainWindow):
             size=info["size"],
             image_hash=info["hash"],
         )
+
+    def on_search_requested(self, text):
+
+        self.image_panel.image_grid.load_images(text)
+
+        if text:
+            self.statusBar().showMessage(
+                f'Search: "{text}"'
+            )
+        else:
+            self.statusBar().showMessage(
+                "Athena Ready"
+            )
 
     def _setup_statusbar(self):
 

@@ -1,6 +1,5 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QUrl
 from PySide6.QtGui import QPixmap, QDesktopServices
-from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import (
     QWidget,
     QScrollArea,
@@ -154,24 +153,63 @@ class ImageGrid(QScrollArea):
 
         self.load_images()
 
-    def load_images(self):
+    def clear_grid(self):
+
+        while self.grid.count():
+
+            item = self.grid.takeAt(0)
+
+            widget = item.widget()
+
+            if widget:
+                widget.deleteLater()
+
+    def load_images(self, keyword=""):
+
+        self.clear_grid()
 
         conn, cursor = create_database()
 
-        cursor.execute("""
-            SELECT
-                id,
-                path,
-                filename,
-                size,
-                hash
-            FROM images
-            LIMIT 120
-        """)
+        if keyword:
+
+            cursor.execute("""
+                SELECT
+                    id,
+                    path,
+                    filename,
+                    size,
+                    hash
+                FROM images
+                WHERE filename LIKE ?
+                ORDER BY filename
+                LIMIT 500
+            """, (f"%{keyword}%",))
+
+        else:
+
+            cursor.execute("""
+                SELECT
+                    id,
+                    path,
+                    filename,
+                    size,
+                    hash
+                FROM images
+                LIMIT 500
+            """)
 
         rows = cursor.fetchall()
 
         conn.close()
+
+        if not rows:
+
+            label = QLabel("No Images Found")
+            label.setAlignment(Qt.AlignCenter)
+
+            self.grid.addWidget(label)
+
+            return
 
         columns = 6
 
@@ -217,8 +255,6 @@ class ImageGrid(QScrollArea):
 
     def open_image(self, info):
 
-        path = info["path"]
-
         QDesktopServices.openUrl(
-            QUrl.fromLocalFile(path)
+            QUrl.fromLocalFile(info["path"])
         )
