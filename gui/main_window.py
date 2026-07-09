@@ -14,6 +14,7 @@ from gui.widgets.search_bar import SearchBar
 
 from recent_manager import RecentManager
 from favorite_manager import FavoriteManager
+from gui_search_manager import GuiSearchManager
 
 
 class MainWindow(QMainWindow):
@@ -24,6 +25,7 @@ class MainWindow(QMainWindow):
         self.recent_manager = RecentManager()
         self.favorite_manager = FavoriteManager()
         self.current_image_info = None
+        self.gui_search = GuiSearchManager()
 
         self.setWindowTitle("Athena")
         self.resize(1600, 900)
@@ -127,8 +129,12 @@ class MainWindow(QMainWindow):
 
     def on_search_requested(self, text):
 
-        self.image_panel.image_grid.load_images(
+        request = self.gui_search.search(
             text
+        )
+
+        self.image_panel.image_grid.load_images(
+            request.query
         )
 
         if text:
