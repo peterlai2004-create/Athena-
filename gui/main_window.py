@@ -1,3 +1,5 @@
+from email.mime import text
+
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -15,6 +17,7 @@ from gui.widgets.search_bar import SearchBar
 from recent_manager import RecentManager
 from favorite_manager import FavoriteManager
 from gui_search_manager import GuiSearchManager
+from ai_search_service import AISearchService
 
 
 class MainWindow(QMainWindow):
@@ -26,6 +29,7 @@ class MainWindow(QMainWindow):
         self.favorite_manager = FavoriteManager()
         self.current_image_info = None
         self.gui_search = GuiSearchManager()
+        self.ai_service = AISearchService()
 
         self.setWindowTitle("Athena")
         self.resize(1600, 900)
@@ -133,9 +137,26 @@ class MainWindow(QMainWindow):
             text
         )
 
-        self.image_panel.image_grid.load_images(
-            request.query
-        )
+        if text.startswith("ai:"):
+
+            images = self.ai_service.search(
+                request.query,
+                top_k=100,
+            )
+
+            self.image_panel.image_grid.load_favorite_images(
+                images
+            )
+
+            self.statusBar().showMessage(
+                f'AI Search: "{request.query}"'
+            )
+
+            return
+
+            self.image_panel.image_grid.load_images(
+                request.query
+            )
 
         if text:
 
