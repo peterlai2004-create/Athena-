@@ -13,6 +13,7 @@ from gui.panels.info_panel import InfoPanel
 from gui.widgets.search_bar import SearchBar
 
 from recent_manager import RecentManager
+from favorite_manager import FavoriteManager
 
 
 class MainWindow(QMainWindow):
@@ -21,6 +22,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.recent_manager = RecentManager()
+        self.favorite_manager = FavoriteManager()
+        self.current_image_info = None
 
         self.setWindowTitle("Athena")
         self.resize(1600, 900)
@@ -84,11 +87,17 @@ class MainWindow(QMainWindow):
             self.on_recent_clicked
         )
 
+        self.info_panel.favorite_clicked.connect(
+            self.on_favorite_clicked
+        )
+
         self.navigation_panel.home_btn.clicked.connect(
             self.on_home_clicked
         )
 
     def on_image_selected(self, info):
+
+        self.current_image_info = info
 
         self.recent_manager.add(info)
 
@@ -101,6 +110,7 @@ class MainWindow(QMainWindow):
         )
 
         self.info_panel.set_image_info(
+            image_id=info["id"],
             filename=info["filename"],
             path=info["path"],
             size=info["size"],
@@ -150,6 +160,27 @@ class MainWindow(QMainWindow):
 
         self.statusBar().showMessage(
             "Home"
+        )
+
+    def on_favorite_clicked(self):
+
+        if self.current_image_info is None:
+            return
+
+        is_favorite = self.favorite_manager.toggle(
+            self.current_image_info
+        )
+
+        self.info_panel.set_favorite_state(
+            is_favorite
+        )
+
+        count = len(
+            self.favorite_manager.get_favorites()
+        )
+
+        self.statusBar().showMessage(
+            f"Favorites: {count}"
         )
 
     def _setup_statusbar(self):

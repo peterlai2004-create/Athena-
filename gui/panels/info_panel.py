@@ -1,10 +1,11 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
     QTextEdit,
+    QPushButton,
 )
 
 from PIL import Image
@@ -12,8 +13,12 @@ from PIL import Image
 
 class InfoPanel(QWidget):
 
+    favorite_clicked = Signal()
+
     def __init__(self):
         super().__init__()
+
+        self.current_image_id = None
 
         layout = QVBoxLayout(self)
 
@@ -37,16 +42,34 @@ class InfoPanel(QWidget):
 
         layout.addWidget(self.preview_label)
 
+        self.favorite_button = QPushButton(
+            "⭐ Add Favorite"
+        )
+
+        layout.addWidget(
+            self.favorite_button
+        )
+
         self.info = QTextEdit()
         self.info.setReadOnly(True)
 
         layout.addWidget(self.info)
 
+        self.favorite_button.clicked.connect(
+            self.favorite_clicked.emit
+        )
+
         self.clear_info()
 
     def clear_info(self):
 
+        self.current_image_id = None
+
         self.preview_label.clear()
+
+        self.favorite_button.setText(
+            "⭐ Add Favorite"
+        )
 
         self.info.setPlainText(
             "Filename:\n"
@@ -60,8 +83,26 @@ class InfoPanel(QWidget):
             "Hash:\n"
         )
 
+    def set_favorite_state(
+        self,
+        is_favorite,
+    ):
+
+        if is_favorite:
+
+            self.favorite_button.setText(
+                "⭐ Remove Favorite"
+            )
+
+        else:
+
+            self.favorite_button.setText(
+                "⭐ Add Favorite"
+            )
+
     def set_image_info(
         self,
+        image_id,
         filename,
         path,
         width=None,
@@ -70,6 +111,8 @@ class InfoPanel(QWidget):
         image_hash=None,
         tags=""
     ):
+
+        self.current_image_id = image_id
 
         pixmap = QPixmap(path)
 
@@ -82,19 +125,30 @@ class InfoPanel(QWidget):
                 Qt.SmoothTransformation
             )
 
-            self.preview_label.setPixmap(pixmap)
+            self.preview_label.setPixmap(
+                pixmap
+            )
 
         try:
+
             img = Image.open(path)
+
             width, height = img.size
-            resolution = f"{width} x {height}"
+
+            resolution = (
+                f"{width} x {height}"
+            )
+
         except:
             resolution = ""
 
         size_text = ""
 
         if size is not None:
-            size_text = f"{size:,} bytes"
+
+            size_text = (
+                f"{size:,} bytes"
+            )
 
         hash_text = image_hash or ""
 
