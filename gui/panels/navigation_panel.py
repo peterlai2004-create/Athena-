@@ -34,6 +34,7 @@ class NavigationPanel(QWidget):
         self.search_btn = SidebarButton("🔍 Search")
         self.library_btn = SidebarButton("🖼 Library")
         self.recent_btn = SidebarButton("🕒 Recent")
+        self.favorite_btn = SidebarButton("⭐ Favorites")
         self.collection_btn = SidebarButton("📁 Collections")
         self.duplicate_btn = SidebarButton("🔄 Duplicate")
         self.ai_btn = SidebarButton("🤖 AI Search")
@@ -46,6 +47,7 @@ class NavigationPanel(QWidget):
             self.search_btn,
             self.library_btn,
             self.recent_btn,
+            self.favorite_btn,
             self.collection_btn,
             self.duplicate_btn,
             self.ai_btn,
@@ -74,4 +76,10 @@ class NavigationPanel(QWidget):
 
         self.recent_btn.setText(
             f"🕒 Recent ({count})"
+        )
+
+    def set_favorite_count(self, count):
+
+        self.favorite_btn.setText(
+            f"⭐ Favorites ({count})"
         )

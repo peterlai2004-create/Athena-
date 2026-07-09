@@ -95,6 +95,10 @@ class MainWindow(QMainWindow):
             self.on_home_clicked
         )
 
+        self.navigation_panel.favorite_btn.clicked.connect(
+            self.on_favorite_page_clicked
+        )
+
     def on_image_selected(self, info):
 
         self.current_image_info = info
@@ -162,6 +166,21 @@ class MainWindow(QMainWindow):
             "Home"
         )
 
+    def on_favorite_page_clicked(self):
+
+        images = (
+            self.favorite_manager
+            .get_favorites()
+        )
+
+        self.image_panel.image_grid.load_favorite_images(
+            images
+        )
+
+        self.statusBar().showMessage(
+            f"Showing {len(images)} favorite images"
+        )
+
     def on_favorite_clicked(self):
 
         if self.current_image_info is None:
@@ -177,6 +196,10 @@ class MainWindow(QMainWindow):
 
         count = len(
             self.favorite_manager.get_favorites()
+        )
+
+        self.navigation_panel.set_favorite_count(
+            count
         )
 
         self.statusBar().showMessage(

@@ -287,6 +287,37 @@ class ImageGrid(QScrollArea):
 
         self.render_images()
 
+    def load_favorite_images(self, images):
+
+        self.current_images = []
+
+        for info in images:
+
+            row = (
+                info["id"],
+                info["path"],
+                info["filename"],
+                info["size"],
+                info["hash"],
+            )
+
+            self.current_images.append(row)
+
+        self.render_images()
+
+    def refresh_grid(self):
+
+        self.render_images()
+
+    def set_thumbnail_size(
+        self,
+        size,
+    ):
+
+        self.thumbnail_size = size
+
+        self.render_images()
+
     def refresh_grid(self):
 
         self.render_images()
